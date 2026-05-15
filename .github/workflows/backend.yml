@@ -5,7 +5,7 @@ on:
     paths:
       - 'backend/**'
     branches:
-      - main
+      - deploy
 
 jobs:
   build-push:
