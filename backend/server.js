@@ -5,7 +5,7 @@ const mysql = require("mysql2/promise");
 
 const app = express();
 const PORT = 3001;
-
+//PRUEBA CAMBIO EN SERVER.JS
 // DATOS MYSQL
 const DB_HOST = "172.31.33.240";
 const DB_USER = "root";
