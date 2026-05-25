@@ -1,4 +1,5 @@
 -- Comentario agregado para prueba CI/CD
+-- cambios
 CREATE DATABASE IF NOT EXISTS tienda_perritos;
 USE tienda_perritos;
 
