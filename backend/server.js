@@ -8,11 +8,19 @@ const PORT = 3001;
 //PRUEBA CAMBIO EN SERVER.JS
 //cambio para prueba CI/CD
 // DATOS MYSQL
+<<<<<<< HEAD
 const DB_HOST = process.env.DB_HOST || "mysql-service";
 const DB_USER = process.env.DB_USER || "root";
 const DB_PASSWORD = process.env.DB_PASSWORD || "admin123";
 const DB_NAME = process.env.DB_NAME || "tienda_perritos";
 const DB_PORT = process.env.DB_PORT || 3306;
+=======
+const DB_HOST = "172.31.33.240";
+const DB_USER = "root";
+const DB_PASSWORD = "admin123";
+const DB_NAME = "tienda_perritos";
+const DB_PORT = 3306;
+>>>>>>> 3fcfc2280ae21151ba32014bf6689753a904b7fe
 
 app.use(cors());
 app.use(express.json());
