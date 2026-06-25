@@ -1,0 +1,43 @@
+name: Deploy Frontend to EKS
+
+on:
+  push:
+    branches: [ deploy ]
+    paths:
+      - 'frontend/**'
+      - 'k8s/frontend.yaml'
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
+      - name: Configurar credenciales AWS
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      - name: Autenticar en Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Construir y subir imagen del Frontend a ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: frontend
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Actualizar contexto de Kubeconfig
+        run: aws eks update-kubeconfig --region us-east-1 --name test_eks_cluster1
+
+      - name: Desplegar Frontend en Kubernetes
+        run: |
+          kubectl apply -f k8s/frontend.yaml
