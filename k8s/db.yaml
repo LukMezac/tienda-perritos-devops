@@ -15,10 +15,17 @@ spec:
     spec:
       containers:
       - name: db
-        image: mysql:5.7
+        image: 734379326133.dkr.ecr.us-east-1.amazonaws.com/tienda-db
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: password
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_DATABASE
+          value: "tienda_perritos"
+        ports:
+        - containerPort: 3306
 ---
 apiVersion: v1
 kind: Service
