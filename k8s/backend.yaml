@@ -15,9 +15,9 @@ spec:
     spec:
       containers:
       - name: backend
-        image: 734379326133.dkr.ecr.us-east-1.amazonaws.com/tienda-backend
+        image: 734379326133.dkr.ecr.us-east-1.amazonaws.com/tienda-backend:latest
         ports:
-        - containerPort: 3000
+        - containerPort: 3001
 ---
 apiVersion: v1
 kind: Service
@@ -29,5 +29,5 @@ spec:
   selector:
     app: backend
   ports:
-    - port: 3000
-      targetPort: 3000
+  - port: 3001
+    targetPort: 3001
