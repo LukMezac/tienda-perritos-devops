@@ -44,4 +44,5 @@ jobs:
 
       - name: Desplegar en Kubernetes
         run: |
+          kubectl create namespace tienda-perritos || echo "El namespace ya existe"
           kubectl apply -f k8s/
