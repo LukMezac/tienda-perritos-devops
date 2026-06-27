@@ -1,4 +1,4 @@
-name: Deploy Fullstack to EKS
+name: Deploy Devops to EKS
 
 on:
   push:
