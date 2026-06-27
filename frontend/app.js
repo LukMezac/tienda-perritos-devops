@@ -2,13 +2,7 @@
  * Frontend simple para CRUD de productos de la tienda de perritos.
  */
 
-// Determinar la URL base de la API según el host
-// frontend/app.js
-
-// actualización frontend
 const API_BASE = "/api/productos";
-
-
 let editandoId = null;
 
 const tbody = document.getElementById("tbodyProductos");
@@ -37,7 +31,7 @@ async function cargarProductos() {
     setStatus("Productos cargados correctamente.", "ok");
   } catch (err) {
     console.error(err);
-    setStatus("No se pudieron cargar los productos. ¿Está el backend levantado?", "error");
+    setStatus("No se pudieron cargar los productos.", "error");
   }
 }
 
@@ -45,7 +39,6 @@ function renderProductos(productos) {
   tbody.innerHTML = "";
   productos.forEach((p) => {
     const tr = document.createElement("tr");
-
     tr.innerHTML = `
       <td>${p.id}</td>
       <td>${p.nombre}</td>
@@ -57,24 +50,15 @@ function renderProductos(productos) {
         <button data-id="${p.id}" class="btn-eliminar danger">Eliminar</button>
       </td>
     `;
-
     tbody.appendChild(tr);
   });
 
-  // Asignar eventos a los botones
   document.querySelectorAll(".btn-editar").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-id");
-      editarProducto(id);
-    });
+    btn.addEventListener("click", () => editarProducto(btn.getAttribute("data-id")));
   });
-
   document.querySelectorAll(".btn-eliminar").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-id");
-      if (confirm("¿Seguro que deseas eliminar este producto?")) {
-        eliminarProducto(id);
-      }
+      if (confirm("¿Seguro?")) eliminarProducto(btn.getAttribute("data-id"));
     });
   });
 }
@@ -88,99 +72,47 @@ function limpiarFormulario() {
   inputStock.value = "";
 }
 
-function obtenerDatosFormulario() {
-  return {
+async function guardarProducto() {
+  const producto = {
     nombre: inputNombre.value.trim(),
     descripcion: inputDescripcion.value.trim(),
     precio: parseFloat(inputPrecio.value),
     stock: parseInt(inputStock.value, 10),
   };
-}
-
-function validarProducto(prod) {
-  if (!prod.nombre) return "El nombre es obligatorio.";
-  if (isNaN(prod.precio) || prod.precio < 0) return "El precio debe ser un número mayor o igual a 0.";
-  if (isNaN(prod.stock) || prod.stock < 0) return "El stock debe ser un número mayor o igual a 0.";
-  return null;
-}
-
-async function guardarProducto() {
-  const producto = obtenerDatosFormulario();
-  const error = validarProducto(producto);
-  if (error) {
-    setStatus(error, "error");
-    return;
-  }
 
   try {
-    let res;
-    if (editandoId) {
-      // Actualizar
-      res = await fetch(`${API_BASE}/${editandoId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(producto),
-      });
-    } else {
-      // Crear
-      res = await fetch(API_BASE, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(producto),
-      });
-    }
-
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data.message || "Error al guardar el producto");
-    }
-
+    const res = await fetch(editandoId ? `${API_BASE}/${editandoId}` : API_BASE, {
+      method: editandoId ? "PUT" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(producto),
+    });
+    if (!res.ok) throw new Error("Error al guardar");
     limpiarFormulario();
     await cargarProductos();
-    setStatus(editandoId ? "Producto actualizado correctamente." : "Producto creado correctamente.", "ok");
+    setStatus("Guardado con éxito.", "ok");
   } catch (err) {
-    console.error(err);
-    setStatus("Ocurrió un error al guardar el producto.", "error");
+    setStatus("Error al guardar.", "error");
   }
 }
 
 async function editarProducto(id) {
-  try {
-    const res = await fetch(`${API_BASE}/${id}`);
-    if (!res.ok) throw new Error("No se pudo obtener el producto");
-    const p = await res.json();
-    editandoId = p.id;
-    formTitle.textContent = `Editar producto #${p.id}`;
-    inputNombre.value = p.nombre;
-    inputDescripcion.value = p.descripcion || "";
-    inputPrecio.value = p.precio;
-    inputStock.value = p.stock;
-    setStatus("Editando producto.", "ok");
-  } catch (err) {
-    console.error(err);
-    setStatus("No se pudo cargar el producto para editarlo.", "error");
-  }
+  const res = await fetch(`${API_BASE}/${id}`);
+  const p = await res.json();
+  editandoId = p.id;
+  formTitle.textContent = `Editar #${p.id}`;
+  inputNombre.value = p.nombre;
+  inputDescripcion.value = p.descripcion;
+  inputPrecio.value = p.precio;
+  inputStock.value = p.stock;
 }
 
 async function eliminarProducto(id) {
-  try {
-    const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
-    if (!res.ok) throw new Error("Error al eliminar producto");
-    await cargarProductos();
-    setStatus("Producto eliminado correctamente.", "ok");
-  } catch (err) {
-    console.error(err);
-    setStatus("No se pudo eliminar el producto.", "error");
-  }
+  await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+  await cargarProductos();
 }
 
-// Eventos
 btnCargar.addEventListener("click", cargarProductos);
 btnGuardar.addEventListener("click", guardarProducto);
-btnCancelar.addEventListener("click", () => {
-  limpiarFormulario();
-  setStatus("Edición cancelada.", "ok");
-});
+btnCancelar.addEventListener("click", limpiarFormulario);
 
-// Cargar productos al iniciar
 cargarProductos();

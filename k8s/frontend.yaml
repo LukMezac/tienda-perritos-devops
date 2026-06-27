@@ -26,7 +26,7 @@ metadata:
   namespace: tienda-perritos
 spec:
   type: LoadBalancer
-  externalTrafficPolicy: Local  # <--- ESTA ES LA CLAVE
+  externalTrafficPolicy: Local
   selector:
     app: frontend
   ports:
