@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: 734379326133.dkr.ecr.us-east-1.amazonaws.com/tienda-frontend:latest # <--- AGREGADO :latest
+        image: 734379326133.dkr.ecr.us-east-1.amazonaws.com/tienda-frontend:latest
         ports:
         - containerPort: 80
 ---
@@ -26,6 +26,7 @@ metadata:
   namespace: tienda-perritos
 spec:
   type: LoadBalancer
+  externalTrafficPolicy: Local  # <--- ESTA ES LA CLAVE
   selector:
     app: frontend
   ports:
