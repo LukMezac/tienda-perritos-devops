@@ -24,6 +24,8 @@ kind: Service
 metadata:
   name: frontend-service
   namespace: tienda-perritos
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
 spec:
   type: LoadBalancer
   externalTrafficPolicy: Local
