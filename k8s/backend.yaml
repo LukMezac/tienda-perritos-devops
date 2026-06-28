@@ -4,7 +4,7 @@ metadata:
   name: backend
   namespace: tienda-perritos
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: backend
@@ -16,11 +16,26 @@ spec:
       containers:
       - name: backend
         image: 734379326133.dkr.ecr.us-east-1.amazonaws.com/tienda-backend:latest
-        ports:
-        - containerPort: 3001
         env:
         - name: DB_HOST
-          value: "db-service" # <--- CORREGIDO: ahora apunta al nombre real de tu servicio de BD
+          value: "db-service"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: DB_PASSWORD
+        - name: DB_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: DB_DATABASE
+        ports:
+        - containerPort: 3001
 ---
 apiVersion: v1
 kind: Service

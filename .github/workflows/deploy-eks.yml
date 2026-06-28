@@ -1,4 +1,4 @@
-name: Deploy Fullstack to EKS
+name: Deploy Devops to EKS
 
 on:
   push:
@@ -27,15 +27,8 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          # 1. Base de Datos
-          docker build -t $ECR_REGISTRY/tienda-db:latest ./db
-          docker push $ECR_REGISTRY/tienda-db:latest
-          
-          # 2. Backend
           docker build -t $ECR_REGISTRY/tienda-backend:latest ./backend
           docker push $ECR_REGISTRY/tienda-backend:latest
-          
-          # 3. Frontend
           docker build -t $ECR_REGISTRY/tienda-frontend:latest ./frontend
           docker push $ECR_REGISTRY/tienda-frontend:latest
 
@@ -44,5 +37,6 @@ jobs:
 
       - name: Desplegar en Kubernetes
         run: |
-          kubectl create namespace tienda-perritos || echo "El namespace ya existe"
           kubectl apply -f k8s/
+          # ESTO ES LO QUE FALTABA: Obliga a que los pods tomen los nuevos secretos
+          kubectl rollout restart deployment backend -n tienda-perritos

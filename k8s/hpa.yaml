@@ -7,8 +7,8 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: backend  # <--- CORREGIDO: ahora coincide con el nombre en backend.yaml
-  minReplicas: 2
+    name: backend
+  minReplicas: 1
   maxReplicas: 5
   metrics:
   - type: Resource

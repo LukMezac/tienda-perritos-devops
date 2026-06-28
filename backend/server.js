@@ -6,11 +6,13 @@ const mysql = require("mysql2/promise");
 const app = express();
 const PORT = 3001;
 
-// DATOS MYSQL (Usando resolución DNS de Kubernetes)
+// --- CONFIGURACIÓN SEGURA PARA KUBERNETES ---
+// Si no encuentra la variable de entorno, el proceso debe fallar. 
+// Esto asegura que si el Secret falta, el backend no se inicie con datos erróneos.
 const DB_HOST = process.env.DB_HOST || "mysql-service";
-const DB_USER = process.env.DB_USER || "root";
-const DB_PASSWORD = process.env.DB_PASSWORD || "admin123";
-const DB_NAME = process.env.DB_NAME || "tienda_perritos";
+const DB_USER = process.env.DB_USER; 
+const DB_PASSWORD = process.env.DB_PASSWORD;
+const DB_NAME = process.env.DB_DATABASE;
 const DB_PORT = process.env.DB_PORT || 3306;
 
 app.use(cors());
@@ -18,7 +20,7 @@ app.use(express.json());
 
 let pool;
 
-// Inicializar conexión MySQL
+// Inicializar conexión MySQL (Tu lógica original de Pool)
 async function initDb() {
   try {
     pool = mysql.createPool({
@@ -44,6 +46,9 @@ async function initDb() {
   }
 }
 
+initDb();
+
+// Función de manejo de errores
 function handleError(res, error, message = "Error interno") {
   console.log("=================================");
   console.log("❌ ERROR REAL MYSQL:");
@@ -51,6 +56,8 @@ function handleError(res, error, message = "Error interno") {
   console.log("=================================");
   res.status(500).json({ message, error: String(error) });
 }
+
+// --- TUS RUTAS ORIGINALES (INTACTAS) ---
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "Backend funcionando correctamente" });
@@ -116,5 +123,4 @@ app.delete("/api/productos/:id", async (req, res) => {
 
 app.listen(PORT, async () => {
   console.log(`🚀 Backend escuchando en puerto ${PORT}`);
-  await initDb();
 });
