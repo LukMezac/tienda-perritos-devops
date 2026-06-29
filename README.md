@@ -1,85 +1,64 @@
 # 🐶 Tienda Perritos DevOps
 
-Proyecto desarrollado para la asignatura **Introducción a Herramientas DevOps**, cuyo objetivo es implementar una arquitectura basada en contenedores utilizando Docker, Kubernetes y Amazon Web Services (AWS), automatizando el proceso de integración y despliegue continuo mediante GitHub Actions.
+Proyecto desarrollado para la Evaluación Parcial 3 de la asignatura **Introducción a Herramientas DevOps (ISY1101)**.
+
+El proyecto implementa una arquitectura basada en **Amazon EKS**, utilizando Kubernetes para la orquestación de contenedores, GitHub Actions para la automatización del despliegue y Amazon ECR como repositorio de imágenes Docker.
 
 ---
 
-# 📋 Integrantes
+# 👥 Integrantes
 
-- **Lukas Meza**
-- **Christian Sandoval**
-- Ingeniería en Informática
-- Introducción a Herramientas DevOps
+- Lukas Meza
+- Christian Sandoval
 
 ---
 
-# 🎯 Objetivos
+# 📌 Tecnologías utilizadas
 
-- Contenerizar una aplicación Full Stack.
-- Automatizar la construcción de imágenes Docker.
-- Publicar imágenes en Amazon Elastic Container Registry (ECR).
-- Desplegar automáticamente la aplicación en Amazon Elastic Kubernetes Service (EKS).
-- Implementar alta disponibilidad mediante múltiples réplicas.
-- Configurar escalado automático (Horizontal Pod Autoscaler).
-- Gestionar información sensible mediante Kubernetes Secrets.
-- Aplicar buenas prácticas DevOps utilizando un pipeline CI/CD.
+- Amazon Web Services (AWS)
+- Amazon EKS
+- Amazon ECR
+- Docker
+- Kubernetes
+- GitHub Actions
+- MySQL
+- HTML
+- JavaScript
+- Node.js
+- Nginx
 
 ---
 
 # 🏗 Arquitectura
 
 ```
-                    GitHub
-                       │
-                 Push a main
-                       │
-                       ▼
-              GitHub Actions CI/CD
-                       │
-        ┌──────────────┴──────────────┐
-        │                             │
-        ▼                             ▼
- Build imágenes Docker         Ejecuta Pipeline
-        │
-        ▼
- Amazon Elastic Container Registry (ECR)
-        │
-        ▼
- Amazon Elastic Kubernetes Service (EKS)
-        │
- ┌──────┴─────────┐
- │                │
- ▼                ▼
-Frontend      Backend
- (Nginx)      (Node.js)
-                   │
-                   ▼
-               MySQL 8
+Usuario
+   │
+   ▼
+LoadBalancer (Frontend)
+   │
+   ▼
+Frontend (Nginx)
+   │
+   ▼
+Backend (Node.js)
+   │
+   ▼
+MySQL
 ```
+
+Todos los componentes se ejecutan dentro de un clúster de Amazon EKS.
 
 ---
 
-# 🛠 Tecnologías utilizadas
-
-- Docker
-- Docker Hub / Amazon ECR
-- Kubernetes
-- Amazon EKS
-- Amazon EC2
-- Amazon IAM
-- Amazon VPC
-- GitHub Actions
-- Node.js
-- Express
-- MySQL 8
-- Nginx
-
----
-
-# 📁 Estructura del proyecto
+# 📂 Estructura del proyecto
 
 ```
-tienda-perritos-devops
+tienda-perritos-devops-deploy/
+
+├── .github/
+│   └── workflows/
+│       └── deploy-eks.yml
 │
 ├── backend/
 │   ├── Dockerfile
@@ -88,225 +67,186 @@ tienda-perritos-devops
 │
 ├── frontend/
 │   ├── Dockerfile
-│   ├── app.js
+│   ├── default.conf
 │   ├── index.html
-│   └── default.conf
+│   └── app.js
 │
-├── database/
-│   ├── Dockerfile
-│   └── init.sql
+├── db/
+│   ├── init.sql
+│   └── Dockerfile
 │
 ├── k8s/
-│   ├── namespace.yaml
-│   ├── secret.yaml
-│   ├── mysql.yaml
 │   ├── backend.yaml
 │   ├── frontend.yaml
-│   ├── hpa-backend.yaml
-│   └── hpa-frontend.yaml
-│
-├── .github/
-│   └── workflows/
-│       └── deploy-eks.yml
+│   ├── db.yaml
+│   ├── service.yaml
+│   ├── secret.yaml
+│   ├── namespace.yaml
+│   └── hpa.yaml
 │
 └── README.md
 ```
 
 ---
 
-# 🐳 Contenedores
+# 🚀 Despliegue
 
-El proyecto está compuesto por tres contenedores:
+El proyecto utiliza GitHub Actions para automatizar el despliegue.
 
-## Backend
+Cada vez que se realiza un **push** a la rama configurada para el workflow:
 
-- Node.js
-- Express
-- API REST
-- Puerto 3001
-
-## Frontend
-
-- Nginx
-- HTML
-- JavaScript
-- Puerto 80
-
-## Base de datos
-
-- MySQL 8
-- Puerto 3306
+1. Se construyen las imágenes Docker.
+2. Se publican en Amazon ECR.
+3. Se actualizan los Deployments del clúster EKS.
+4. Kubernetes realiza un Rolling Update sin detener la aplicación.
 
 ---
 
-# ☁ Infraestructura AWS
+# ☁ Amazon EKS
 
-La infraestructura fue implementada utilizando:
+El clúster fue configurado con:
 
 - Amazon EKS
-- Amazon ECR
-- Amazon IAM
-- Amazon VPC
+- Node Group administrado
+- Instancias t3.medium
+- VPC dedicada
+- Subredes públicas y privadas
+- IAM Roles
 - Security Groups
-- Auto Scaling
-- Kubernetes Services
-- Kubernetes Deployments
 
 ---
 
-# 🚀 Pipeline CI/CD
+# 📦 Kubernetes
 
-Cada vez que se realiza un **Push** hacia la rama principal del repositorio:
+Se utilizaron los siguientes recursos:
 
-1. GitHub Actions inicia automáticamente el pipeline.
-2. Se construyen las imágenes Docker.
-3. Las imágenes se publican en Amazon ECR.
-4. Se actualiza el kubeconfig.
-5. Kubernetes despliega automáticamente los cambios.
-6. Los Pods son reiniciados con la nueva versión.
+- Namespace
+- Deployments
+- Services
+- Secrets
+- Horizontal Pod Autoscaler
+- Rolling Update
 
 ---
 
 # 🔐 Gestión de Secrets
 
-Las credenciales sensibles no se almacenan dentro del código fuente.
+Las credenciales de la base de datos se administran mediante **Kubernetes Secrets**, evitando incorporar información sensible directamente en el código fuente.
 
-Se utilizan:
+Variables utilizadas:
 
-- GitHub Secrets
-- Kubernetes Secrets
+- DB_HOST
+- DB_NAME
+- DB_USER
+- DB_PASSWORD
+- MYSQL_ROOT_PASSWORD
 
-para administrar:
-
-- AWS_ACCESS_KEY_ID
-- AWS_SECRET_ACCESS_KEY
-- AWS_SESSION_TOKEN
-- Credenciales MySQL
+> **Importante:** Para fines académicos, el archivo `secret.yaml` contiene valores de ejemplo. En un entorno productivo se recomienda utilizar GitHub Secrets o AWS Secrets Manager.
 
 ---
 
-# 📈 Alta disponibilidad
+# 📈 Escalabilidad
 
-Para garantizar la disponibilidad del servicio se configuraron múltiples réplicas.
+El Backend implementa un **Horizontal Pod Autoscaler (HPA)**.
 
-| Servicio | Réplicas |
-|----------|---------:|
-| Frontend | 2 |
-| Backend | 2 |
+Configuración:
 
----
+- Mínimo: 1 réplica
+- Máximo: 5 réplicas
+- Umbral CPU: 70%
 
-# 📊 Escalado automático
-
-Se implementó Horizontal Pod Autoscaler (HPA).
-
-Configuración utilizada:
-
-- Réplicas mínimas: 2
-- Réplicas máximas: 5
-- CPU objetivo: 70%
+Esto permite incrementar automáticamente la cantidad de Pods cuando aumenta la carga del sistema.
 
 ---
 
-# ▶ Despliegue
+# 🔄 Pipeline CI/CD
 
-Aplicar todos los manifiestos Kubernetes:
+El flujo implementado es:
 
-```bash
-kubectl apply -f k8s/
+```
+Commit
+      │
+      ▼
+GitHub Actions
+      │
+      ▼
+Docker Build
+      │
+      ▼
+Push Amazon ECR
+      │
+      ▼
+kubectl apply
+      │
+      ▼
+Amazon EKS
 ```
 
-Verificar Pods:
+---
+
+# ✅ Validación
+
+Durante las pruebas se verificó:
+
+- Correcto despliegue del Frontend.
+- Comunicación Frontend → Backend.
+- Conectividad con MySQL.
+- Ejecución correcta del Pipeline.
+- Estado de los Pods.
+- Estado de los Services.
+- Correcta creación del HPA.
+
+Comandos utilizados:
 
 ```bash
 kubectl get pods
-```
-
-Verificar Servicios:
-
-```bash
 kubectl get svc
-```
-
-Verificar Deployments:
-
-```bash
 kubectl get deployments
-```
-
-Verificar Horizontal Pod Autoscaler:
-
-```bash
 kubectl get hpa
+kubectl describe hpa
+kubectl logs
 ```
 
 ---
 
-# 📌 Endpoints
+# ▶ Ejecución
 
-## Frontend
+Una vez desplegado el proyecto:
 
-```
-http://<LOAD_BALANCER>
-```
+Acceder al Frontend mediante la IP o DNS del servicio LoadBalancer.
 
-## Backend
-
-```
-http://<LOAD_BALANCER>/api/productos
-```
+El Backend expone la API utilizada por el Frontend para consultar los productos almacenados en MySQL.
 
 ---
 
-# 📋 Funcionalidades
+# 📸 Evidencias
 
-- Obtener productos
-- Buscar producto por ID
-- Crear productos
-- Actualizar productos
-- Eliminar productos
-- Health Check
-- Comunicación Frontend ↔ Backend
-- Persistencia en MySQL
+Las capturas del proceso de implementación se encuentran documentadas en el informe entregado junto al proyecto.
 
----
+Incluyen:
 
-# 📷 Evidencias recomendadas
-
-Agregar capturas de:
-
-- Clúster EKS
-- Node Group
-- Pods en ejecución
-- Servicios Kubernetes
-- Horizontal Pod Autoscaler
-- GitHub Actions exitoso
+- Creación del clúster EKS
+- Configuración de Node Group
+- Creación del Namespace
+- Deployments
+- Services
+- Secrets
+- HPA
+- GitHub Actions
 - Amazon ECR
-- Aplicación funcionando
+- Validación funcional
 
 ---
 
-# 📖 Buenas prácticas implementadas
+# 📚 Conclusión
 
-- Contenedores independientes
-- Arquitectura desacoplada
-- Integración Continua (CI)
-- Despliegue Continuo (CD)
-- Uso de Secrets
-- Alta disponibilidad
-- Escalado automático
-- Infraestructura en AWS
-- Orquestación con Kubernetes
+La solución implementada demuestra la aplicación de herramientas DevOps para automatizar el despliegue de aplicaciones contenerizadas en la nube.
 
----
+Se logró implementar:
 
-# 👨‍💻 Autor
-
-**Lukas Meza**
-**Christian Sandoval**
-
-Ingeniería en Informática
-
-Introducción a Herramientas DevOps
-
-2026
+- Orquestación mediante Kubernetes.
+- Automatización CI/CD con GitHub Actions.
+- Almacenamiento de imágenes en Amazon ECR.
+- Gestión de credenciales mediante Kubernetes Secrets.
+- Escalabilidad mediante Horizontal Pod Autoscaler.
+- Despliegue continuo sobre Amazon EKS.
