@@ -1,3 +1,5 @@
+
+#Backend
 FROM node:18-alpine
 
 WORKDIR /app
@@ -15,3 +17,4 @@ RUN addgroup appgroup && adduser -S appuser -G appgroup
 USER appuser
 
 CMD ["npm", "start"]
+

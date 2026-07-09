@@ -1,3 +1,5 @@
+
+#DB
 # Imagen base MySQL 8 oficial
 FROM mysql:8
 

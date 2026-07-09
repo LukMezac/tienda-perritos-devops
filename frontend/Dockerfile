@@ -1,3 +1,5 @@
+
+#Frontend
 FROM nginx:alpine
 
 # Limpia contenido por defecto
