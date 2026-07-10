@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
       - name: db
-        image: 734379326133.dkr.ecr.us-east-1.amazonaws.com/tienda-db
+        image: mysql:8
+
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
