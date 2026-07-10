@@ -34,16 +34,3 @@ spec:
       - name: init-script
         configMap:
           name: mysql-init
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: db-service
-  namespace: tienda-perritos
-spec:
-  type: ClusterIP
-  selector:
-    app: db
-  ports:
-    - port: 3306
-      targetPort: 3306
