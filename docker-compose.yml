@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8
+    container_name: tienda-db-local
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_DATABASE: tienda_perritos
+    ports:
+      - "3306:3306"
+    # Esto inyecta tus perritos automáticamente en local
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tienda-backend-local
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: admin123
+      DB_NAME: tienda_perritos
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tienda-frontend-local
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
