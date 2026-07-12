@@ -16,6 +16,11 @@ spec:
       containers:
       - name: backend
         image: 510074691011.dkr.ecr.us-east-1.amazonaws.com/tienda-backend
+        resources:
+          requests:
+            cpu: "100m"
+          limits:
+            cpu: "500m"
         env:
         - name: DB_HOST
           value: "db-service"
