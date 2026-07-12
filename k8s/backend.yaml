@@ -18,7 +18,7 @@ spec:
         image: 510074691011.dkr.ecr.us-east-1.amazonaws.com/tienda-backend
         resources:
           requests:
-            cpu: "100m"
+            cpu: "10m"
           limits:
             cpu: "500m"
         env:
